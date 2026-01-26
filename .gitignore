@@ -1,0 +1,16 @@
+# binary outputs
+**/bin
+*.a
+*.o
+*.so
+*.exe
+*.dll
+
+# cmake stuffs
+CMakeCache.txt
+*.cmake
+*.check_cache
+/CMakeFiles
+
+# allow our custom .cmake files
+!/cmake/*.cmake
