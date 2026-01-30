@@ -23,14 +23,14 @@ find_package(spdlog)
 
 # Our header-only libraries
 add_library(random_device INTERFACE src/random_device.hpp)
-add_library(link_state INTERFACE src/link_state.hpp)
+add_library(link_destination INTERFACE src/link_destination.hpp)
 
 # Our other libraries
 add_library(url_id_descriptor STATIC src/url_id_descriptor.hpp src/url_id_descriptor.cpp)
 target_link_libraries(url_id_descriptor PRIVATE random_device)
 
 add_library(url_shorterner_container STATIC src/url_shorterner_container.hpp src/url_shorterner_container.cpp)
-target_link_libraries(url_shorterner_container PRIVATE url_id_descriptor link_state random_device)
+target_link_libraries(url_shorterner_container PRIVATE url_id_descriptor link_destination random_device)
 
 # Our executables
 add_executable(url_shorterner src/main.cpp)

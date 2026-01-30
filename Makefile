@@ -143,17 +143,17 @@ random_device/fast:
 .PHONY : random_device/fast
 
 #=============================================================================
-# Target rules for targets named link_state
+# Target rules for targets named link_destination
 
 # Build rule for target.
-link_state: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 link_state
-.PHONY : link_state
+link_destination: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 link_destination
+.PHONY : link_destination
 
 # fast build rule for target.
-link_state/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/link_state.dir/build.make CMakeFiles/link_state.dir/build
-.PHONY : link_state/fast
+link_destination/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/link_destination.dir/build.make CMakeFiles/link_destination.dir/build
+.PHONY : link_destination/fast
 
 #=============================================================================
 # Target rules for targets named url_id_descriptor
@@ -312,7 +312,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... httplib"
-	@echo "... link_state"
+	@echo "... link_destination"
 	@echo "... random_device"
 	@echo "... spdlog"
 	@echo "... url_id_descriptor"

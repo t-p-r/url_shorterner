@@ -6,8 +6,15 @@
 #include "random_device.hpp"
 
 /**
- * We use an alphabet of lowercase Latin characters and single digits, i.e.
- * [a-z0-9] to form URL_ID characters.
+ * We define an URL_ID string to be a string satisfying the regex [a-z0-9]{4},
+ * meaning that it is a 4-character string composed of either lowercase English
+ * characters or decimal digits.
+ *
+ * This facilitates the creation of shortened links, for example:
+ *
+ * http://localhost:6633/a1b2 -> https://www.youtube.com/watch?v=i-6jdvdAiEQ
+ *
+ * where our URL_ID is a1b2.
  */
 class url_id_descriptor {
    public:
@@ -19,10 +26,7 @@ class url_id_descriptor {
 
     /**
      * @param rng Random device to help generate the characters.
-     *
-     * @return @c URL_ID_WIDTH characters within the alphabet, randomly
-     * generated (e.g. a1b2).
-     *
+     * @return A randomly generated URL_ID (e.g. a1b2).
      * @note Maybe this is in the wrong place?
      */
     url_id_t generate_url_id(random_device& rng) const;

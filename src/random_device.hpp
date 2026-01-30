@@ -4,6 +4,9 @@
 #include <chrono>
 #include <random>
 
+/**
+ * Device that generates a sequence of pseudo-randomized unsigned integers.
+ */
 class random_device {
    public:
     random_device()
@@ -11,7 +14,7 @@ class random_device {
                   .time_since_epoch()
                   .count()) {}
 
-    unsigned int get() { return rng(); }
+    unsigned int next_uint() { return rng(); }
 
    private:
     std::mt19937 rng;
