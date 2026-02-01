@@ -9,8 +9,9 @@ class url_shorterner_container {
    public:
     using url_id_t = url_id_descriptor::url_id_t;
     using dest_url_t = link_destination::dest_url_t;
-    using link_container = std::unordered_map<url_id_t, link_destination>;
     using time_point = link_destination::time_point;
+
+    using link_container = std::unordered_map<url_id_t, link_destination>;
 
     /**
      * To represent failures.
@@ -27,7 +28,7 @@ class url_shorterner_container {
 
     /**
      * Find the destination URL that the URL_ID points to.
-     * @param id
+     * @param id What you think it is.
      * @return The destination URL, or @c NULL_URL_ID if the URL_ID currently
      * isn't pointed to any URLs.
      */
@@ -36,16 +37,26 @@ class url_shorterner_container {
     url_shorterner_container() = default;
 
     /**
-     * Constructs the container from a file. The file must be a valid CSV file
-     * where:
-     * - the delimiter is the comma character `,`
-     * - the headers are url_id,dest_url,expire_at, where:
-     *      - url_id is a valid URL_ID
-     *      - dest_url is a valid URL, where special characters must be rendered
-     * in HEX format (e.g. space is %20)
-     *      - expire_at is a valid ISO date string representing a UTC time point
-     * (e.g. 2026-01-29T14:30:00Z)
-     * - empty lines and spaces are permitted and will be ignored
+     * Constructs the container from a file. The file must has these properties:
+     *
+     * - The number of non-empty lines must be 3 * X where X is an unsigned
+     * integer.
+     * - For all unsigned integers `i` between 0 and X - 1:
+     *     - line 3i + 1 must be a valid URL_ID (e.g. a1b2)
+     *     - line 3i + 2 must be a valid URL, where characters with a width
+     * other than 1, or are otherwise invisible, must be escaped using its hex
+     * code (e.g. Space -> %20)
+     *     - line 3i + 3 must be a valid ISO datetime string that corresponds to
+     * a UTC time point (e.g. 2026-02-01T14:30:00Z)
+     *
+     * In other words, when processing from the first non-empty line to the
+     * last, we must be able to consecutively form groups of 3 lines
+     * representing a bond between an URL_ID and its destination.
+     *
+     * Failure to satisfy these constraints will result in undefined behavior,
+     * either within this function or beyond.
+     *
+     * @param ifs File stream from which the container is formed.
      */
     url_shorterner_container(std::ifstream& ifs);
 

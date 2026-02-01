@@ -18,3 +18,5 @@ auto url_shorterner_container::at(const url_id_t& id) const -> dest_url_t {
     auto it = this->container.find(id);
     return it == this->container.end() ? NULL_URL_ID : it->second.dest_url;
 };
+
+url_shorterner_container::url_shorterner_container(std::ifstream& ifs) {}
