@@ -5,13 +5,6 @@ constexpr int DB_LINE_STATES_COUNT = 3;
 constexpr char* ZULU_ISO8601_FORMAT = "%FT%TZ";
 enum DB_LINE_STATES { URL_ID = 0, DEST_URL = 1, EXPIRE_AT = 2 };
 
-auto is_all_spaces(std::string_view line) -> bool {
-    for (char c : line)
-        if (c != ' ')
-            return false;
-    return true;
-}
-
 // Throw at most MAX_RETRY random URL_IDs, see what sticks
 // @todo locks
 auto url_shorterner_container::insert(link_destination&& link) -> url_id_t {
@@ -45,6 +38,13 @@ url_shorterner_container::url_shorterner_container(
     link_destination dest;
     std::string line;
 
+    auto is_all_spaces = [](std::string_view line) -> bool {
+        for (char c : line)
+            if (c != ' ')
+                return false;
+        return true;
+    };
+
     // From https://en.cppreference.com/w/cpp/chrono/parse.html
     auto parse_iso8601 = [filename,
                           &line_count](const std::string& line) -> time_point {
@@ -62,6 +62,7 @@ url_shorterner_container::url_shorterner_container(
         return result;
     };
 
+    // main loop fetching lines from file
     while (std::getline(ifs, line)) {
         if (line.empty() || is_all_spaces(line))
             continue;
@@ -90,7 +91,8 @@ url_shorterner_container::url_shorterner_container(
                 SPDLOG_ERROR("wtf");
                 exit(EXIT_CODES::ERROR_INEXPLICABLE);
         }
-
+        
+        // switch to next item to fetch
         db_line_state = (db_line_state + 1) % DB_LINE_STATES_COUNT;
         line_count++;
     }
