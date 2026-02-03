@@ -31,6 +31,8 @@ class url_id_descriptor {
      */
     url_id_t generate_url_id(random_device& rng) const;
 
+    bool is_valid_url_id(std::string_view s) const;
+
     url_id_descriptor();
 
    private:

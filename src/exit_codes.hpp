@@ -1,0 +1,11 @@
+#ifndef EXIT_CODES_HPP
+#define EXIT_CODES_HPP
+
+enum EXIT_CODES {
+    NOMINAL = 0,
+    ERROR_GENERAL = 1,
+    ERROR_IO = 2,
+    ERROR_INEXPLICABLE = 666
+};
+
+#endif  // EXIT_CODES_HPP

@@ -1,6 +1,11 @@
 #ifndef URL_SHORTERNER_CONTAINER_HPP
 #define URL_SHORTERNER_CONTAINER_HPP
 
+#include <chrono>
+#include <fstream>
+#include <locale>
+#include <sstream>
+#include "exit_codes.hpp"
 #include "link_destination.hpp"
 #include "random_device.hpp"
 #include "url_id_descriptor.hpp"
@@ -9,8 +14,8 @@ class url_shorterner_container {
    public:
     using url_id_t = url_id_descriptor::url_id_t;
     using dest_url_t = link_destination::dest_url_t;
+    url_shorterner_container() = default;
     using time_point = link_destination::time_point;
-
     using link_container = std::unordered_map<url_id_t, link_destination>;
 
     /**
@@ -34,20 +39,27 @@ class url_shorterner_container {
      */
     dest_url_t at(const url_id_t& id) const;
 
-    url_shorterner_container() = default;
-
     /**
      * Constructs the container from a file. The file must has these properties:
      *
-     * - The number of non-empty lines must be 3 * X where X is an unsigned
+     * - The file must consist exclusively of valid lines, empty lines, or lines
+     * consisting of only spaces. A valid line is one where all characters are
+     * visible, have a width of 1, and are not spaces.
+     *
+     * - The number of valid lines must be `3 * X` where `X` is an unsigned
      * integer.
-     * - For all unsigned integers `i` between 0 and X - 1:
-     *     - line 3i + 1 must be a valid URL_ID (e.g. a1b2)
-     *     - line 3i + 2 must be a valid URL, where characters with a width
-     * other than 1, or are otherwise invisible, must be escaped using its hex
-     * code (e.g. Space -> %20)
-     *     - line 3i + 3 must be a valid ISO datetime string that corresponds to
-     * a UTC time point (e.g. 2026-02-01T14:30:00Z)
+     *
+     * - For all unsigned integers `i` between 0 and `X - 1`:
+     *
+     *     - valid line number `3i + 1` must be a valid URL_ID (e.g. a1b2)
+     *
+     *     - valid line number `3i + 2` must be a valid URL, where characters
+     * with a width other than 1, or are otherwise not in common usage (i.e. not
+     * on your keyboard), must be escaped using its hex code (e.g. Space ->
+     * `%20`)
+     *
+     *     - valid line number `3i + 3` must be a valid ISO datetime string that
+     * corresponds to a UTC time point (e.g. `2026-02-01T14:30:00Z`)
      *
      * In other words, when processing from the first non-empty line to the
      * last, we must be able to consecutively form groups of 3 lines
@@ -56,9 +68,9 @@ class url_shorterner_container {
      * Failure to satisfy these constraints will result in undefined behavior,
      * either within this function or beyond.
      *
-     * @param ifs File stream from which the container is formed.
+     * @param filename File from which the container is formed.
      */
-    url_shorterner_container(std::ifstream& ifs);
+    url_shorterner_container(const std::string& filename);
 
    private:
     random_device rng;
