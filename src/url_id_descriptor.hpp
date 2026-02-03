@@ -25,6 +25,11 @@ class url_id_descriptor {
     using url_id_t = std::string;
 
     /**
+     * @return true if `s` is a valid URL_ID, false otherwise.
+     */
+    static bool is_url_id(std::string_view s);
+
+    /**
      * @param rng Random device to help generate the characters.
      * @return A randomly generated URL_ID (e.g. a1b2).
      * @note Maybe this is in the wrong place?

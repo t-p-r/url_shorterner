@@ -20,6 +20,8 @@ class url_shorterner_container {
 
     /**
      * To represent failures.
+     *
+     * @todo another one for dest_url?
      */
     static constexpr url_id_t NULL_URL_ID = "";
 
@@ -28,8 +30,10 @@ class url_shorterner_container {
      * @param dest_url The URL that we want to share (e.g. google.com).
      * @return A valid URL_ID for use with the server (e.g. a1b2), or @c
      * NULL_URL_ID if the attempt fails.
+     *
+     * @todo remove the link copy if possible
      */
-    url_id_t insert(link_destination&& link);
+    url_id_t insert(link_destination link);
 
     /**
      * Find the destination URL that the URL_ID points to.

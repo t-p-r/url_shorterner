@@ -2,12 +2,12 @@
 
 constexpr int MAX_RETRY = 5;
 constexpr int DB_LINE_STATES_COUNT = 3;
-constexpr char* ZULU_ISO8601_FORMAT = "%FT%TZ";
+constexpr std::string ZULU_ISO8601_FORMAT = "%FT%TZ";
 enum DB_LINE_STATES { URL_ID = 0, DEST_URL = 1, EXPIRE_AT = 2 };
 
 // Throw at most MAX_RETRY random URL_IDs, see what sticks
 // @todo locks
-auto url_shorterner_container::insert(link_destination&& link) -> url_id_t {
+auto url_shorterner_container::insert(link_destination link) -> url_id_t {
     for (int iter = 0; iter < MAX_RETRY; iter++) {
         url_id_t candidate = this->descriptor.generate_url_id(this->rng);
         if (this->container.try_emplace(candidate, link).second) {
@@ -91,7 +91,7 @@ url_shorterner_container::url_shorterner_container(
                 SPDLOG_ERROR("wtf");
                 exit(EXIT_CODES::ERROR_INEXPLICABLE);
         }
-        
+
         // switch to next item to fetch
         db_line_state = (db_line_state + 1) % DB_LINE_STATES_COUNT;
         line_count++;
