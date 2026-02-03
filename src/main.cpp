@@ -37,6 +37,8 @@ int main() {
                     // @todo
                 }
 
+                // @todo url isn't valid
+
                 auto res_str = fmt::format(
                     "{{ \"url_id\": \"{}\", \"expire_at\": \"{}\"  }}", url_id,
                     ld.expire_at);
@@ -56,12 +58,18 @@ int main() {
             auto url_id = req.path_params.at("url_id");
             auto dest_url = container.at(url_id);
 
+            SPDLOG_INFO("GET /{} -> {}", url_id, dest_url);
+
+            // @todo invalid url_id
+
             if (dest_url == url_shorterner_container::NULL_URL_ID) {
                 res.status = 404;
                 auto res_str = fmt::format("404 no URL is bound to {}", url_id);
                 res.set_content(res_str, "text/plain");
             } else {
-                res.set_redirect(dest_url);
+                // @todo auto handle https://
+                auto result = fmt::format("https://{}", dest_url);
+                res.set_redirect(result);
             }
         });
 
