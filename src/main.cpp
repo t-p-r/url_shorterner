@@ -1,4 +1,3 @@
-#include <fmt/base.h>
 #include <fmt/chrono.h>
 #include <httplib/httplib.h>
 #include <spdlog/spdlog.h>
@@ -91,6 +90,7 @@ int main() {
         }
     });
 
-    SPDLOG_INFO("server now listening to localhost:{}", PORT);
-    server.listen("localhost", PORT);
+    SPDLOG_INFO("server now listening to http://localhost:{}", PORT);
+    // @todo add docker define
+    server.listen("0.0.0.0", PORT);
 }

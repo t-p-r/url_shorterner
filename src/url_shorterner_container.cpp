@@ -2,7 +2,7 @@
 
 constexpr int MAX_RETRY = 5;
 constexpr int DB_LINE_STATES_COUNT = 3;
-constexpr std::string ZULU_ISO8601_FORMAT = "%FT%TZ";
+constexpr char ZULU_ISO8601_FORMAT[] = "%FT%TZ";
 enum DB_LINE_STATES { URL_ID = 0, DEST_URL = 1, EXPIRE_AT = 2 };
 
 auto url_shorterner_container::end() -> iterator {
