@@ -4,10 +4,11 @@
 #include <spdlog/spdlog.h>
 #include "url_shorterner_container.hpp"
 
-using namespace std::chrono;
+using std::chrono::days;
+using std::chrono::utc_clock;
 
 constexpr int PORT = 6633;
-constexpr auto BIND_EXPIRATION_PERIOD = days(7);
+constexpr auto BIND_TTL = days(7);
 
 int main() {
     SPDLOG_INFO("server started at UTC time {}", utc_clock::now());
@@ -20,31 +21,34 @@ int main() {
         SPDLOG_INFO("200 GET /");
     });
 
+    // @todo 400 when url isn't valid
     server.Get("/bind", [&container](const httplib::Request& req,
                                      httplib::Response& res) {
         if (req.has_param("url")) {
             auto dest_url = req.get_param_value("url");
-            link_destination ld(dest_url,
-                                utc_clock::now() + BIND_EXPIRATION_PERIOD);
-            auto url_id = container.insert(ld);
+            link_destination ld(std::move(dest_url),
+                                utc_clock::now() + BIND_TTL);
 
-            if (url_id == url_shorterner_container::NULL_URL_ID) {
+            auto link = container.insert(std::move(ld));
+            if (link == container.end()) {
                 res.status = 503;
                 res.set_content("Unable to generate shorterned URL_ID.",
                                 "text/plain");
             }
 
-            // @todo url isn't valid
-
-            auto res_str =
-                fmt::format("{{ \"url_id\": \"{}\", \"expire_at\": \"{}\"  }}",
-                            url_id, ld.expire_at);
-
+            auto res_str = fmt::format(
+                "{{ \"url_id\": \"{}\", \"expire_at\": \"{:%FT:%TZ}\"  }}",
+                link->first, link->second.expire_at);
             res.set_content(res_str, "application/json");
+
+            SPDLOG_INFO(
+                "200 GET /bind (dest_url = {} -> url_id = {}, expire_at = "
+                "{:%FT:%TZ})",
+                link->second.dest_url, link->first, link->second.expire_at);
         } else {
             res.status = 400;
             res.set_content(
-                "Bad request: no 'url' parameter found, e.g. "
+                "400 Bad Request: no 'url' parameter found, e.g. "
                 "localhost:6633/bind?url=google.com",
                 "text/plain");
             SPDLOG_INFO("400 GET /bind");
@@ -52,39 +56,37 @@ int main() {
     });
 
     server.Get("/r/:url_id", [&container](const httplib::Request& req,
-                                        httplib::Response& res) {
+                                          httplib::Response& res) {
         auto url_id = req.path_params.at("url_id");
 
         if (!container.descriptor.is_valid_url_id(url_id)) {
             res.status = 400;
             auto res_str = fmt::format("400 invalid URL_ID: {}", url_id);
             res.set_content(res_str, "text/plain");
-            SPDLOG_INFO("400 GET /{}", url_id);
+            SPDLOG_INFO("400 GET /r/{}", url_id);
         } else {
-            auto dest_url = container.at(url_id);
+            auto link = container.at(url_id);
 
-            if (dest_url == url_shorterner_container::NULL_URL_ID) {
+            if (link == container.end()) {
                 res.status = 404;
                 auto res_str = fmt::format("404 no URL is bound to {}", url_id);
                 res.set_content(res_str, "text/plain");
-                SPDLOG_INFO("404 GET /{}", url_id);
+                SPDLOG_INFO("404 GET /r/{}", url_id);
             } else {
-                // basically adds https:// to an URL if it didn't have that
-                // already
                 auto handle_https =
                     [](url_shorterner_container::dest_url_t& url) -> void {
-                    constexpr char* HTTPS_PATTERN = "https://";
-                    constexpr int PATTERN_LEN = strlen(HTTPS_PATTERN);
-                    SPDLOG_INFO("{} + {} + {}", url, url.size(), PATTERN_LEN);
-                    if (url.size() < PATTERN_LEN ||
-                        strncmp(&url[0], &HTTPS_PATTERN[0], PATTERN_LEN)) {
-                        url = HTTPS_PATTERN + url;
-                    }
+                    if (!std::strncmp(url.c_str(), "https://",
+                                      std::strlen("https://")) ||
+                        !std::strncmp(url.c_str(), "http://",
+                                      std::strlen("http://")))
+                        return;
+                    url = "https://" + url;
                 };
 
-                handle_https(dest_url);
-                res.set_redirect(dest_url, 301);
-                SPDLOG_INFO("200 GET /{} -> {}", url_id, dest_url);
+                handle_https(link->second.dest_url);
+                res.set_redirect(link->second.dest_url, 301);
+                SPDLOG_INFO("200 GET /r/{} -> {}", url_id,
+                            link->second.dest_url);
             }
         }
     });
