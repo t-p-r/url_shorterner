@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.11)
 project(url_shorterner CXX)
 
 # Set output folders
@@ -9,26 +9,20 @@ set(CMAKE_CXX_STANDARD 20)
 
 # Set compiler flags
 if(MSVC)
-    add_compile_options(/O2 /W4 /Zi)
+    add_compile_options(/Zi)
 else() # gcc, clang
-    add_compile_options(-O2 -Wall -Wextra -pipe -g)
+    add_compile_options(-O3 -Wall -Wextra -pipe -g)
 endif()
 
 # Set lib folder
 include_directories(lib)
 
-# Dependencies - fmt (ad hoc installation)
-include(FetchContent)
-FetchContent_Declare(
-    fmt
-    GIT_REPOSITORY https://github.com/fmtlib/fmt
-    GIT_TAG e69e5f977d458f2650bb346dadf2ad30c5320281) # 10.2.1
-FetchContent_MakeAvailable(fmt)
-
 # Dependencies - in repo
 add_library(httplib STATIC lib/httplib/httplib.h lib/httplib/httplib.cc)
-add_subdirectory(lib/spdlog)
-find_package(spdlog)
+
+# Dependencies - as package
+find_package(fmt REQUIRED)
+find_package(spdlog REQUIRED)
 
 # Our header-only libraries
 add_library(random_device INTERFACE src/random_device.hpp)
@@ -45,5 +39,5 @@ target_link_libraries(url_shorterner_container PRIVATE url_id_descriptor link_de
 # Our executables
 add_executable(url_shorterner src/main.cpp)
 target_link_libraries(url_shorterner PRIVATE httplib)
-target_link_libraries(url_shorterner PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
+target_link_libraries(url_shorterner PRIVATE fmt::fmt spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 target_link_libraries(url_shorterner PRIVATE url_shorterner_container)
