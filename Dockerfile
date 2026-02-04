@@ -7,7 +7,6 @@ RUN apk add --no-cache build-base cmake fmt-dev spdlog-dev
 
 COPY ./src ./src
 COPY ./lib ./lib
-COPY ./cmake ./cmake
 
 COPY ./CMakeLists.txt ./
 
