@@ -14,14 +14,16 @@ class url_shorterner_container {
    public:
     using url_id_t = url_id_descriptor::url_id_t;
     using dest_url_t = link_destination::dest_url_t;
-    url_shorterner_container() = default;
     using time_point = link_destination::time_point;
-    using link_container = std::unordered_map<url_id_t, link_destination>;
+    using link_container_t = std::unordered_map<url_id_t, link_destination>;
+
+    url_id_descriptor descriptor;
 
     /**
      * To represent failures.
      *
-     * @todo another one for dest_url?
+     * @todo this is confusing as it is also used for dest_url, and an empty
+     * string isn't the best for a NULL response either
      */
     static constexpr url_id_t NULL_URL_ID = "";
 
@@ -42,6 +44,8 @@ class url_shorterner_container {
      * isn't pointed to any URLs.
      */
     dest_url_t at(const url_id_t& id) const;
+
+    url_shorterner_container() = default;
 
     /**
      * Constructs the container from a file. The file must has these properties:
@@ -78,8 +82,7 @@ class url_shorterner_container {
 
    private:
     random_device rng;
-    url_id_descriptor descriptor;
-    link_container container;
+    link_container_t container;
 };
 
 #endif  // URL_SHORTERNER_CONTAINER_HPP
