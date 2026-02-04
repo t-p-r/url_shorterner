@@ -8,9 +8,13 @@
 
 # cmake stuffs
 CMakeCache.txt
+Makefile
 *.cmake
 *.check_cache
 /CMakeFiles
+
+# fmt
+/_deps
 
 # allow our custom .cmake files
 !/cmake/*.cmake

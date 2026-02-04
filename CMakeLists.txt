@@ -8,13 +8,22 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY bin/lib)
 set(CMAKE_CXX_STANDARD 20)
 
 # Set compiler flags
-add_compile_options(-O2 -pipe -g)
+if(MSVC)
+    add_compile_options(/O2 /W4 /Zi)
+else() # gcc, clang
+    add_compile_options(-O2 -Wall -Wextra -pipe -g)
+endif()
 
 # Set lib folder
 include_directories(lib)
 
-# Dependencies - installed on system
-find_package(fmt)
+# Dependencies - fmt (ad hoc installation)
+include(FetchContent)
+FetchContent_Declare(
+    fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt
+    GIT_TAG e69e5f977d458f2650bb346dadf2ad30c5320281) # 10.2.1
+FetchContent_MakeAvailable(fmt)
 
 # Dependencies - in repo
 add_library(httplib STATIC lib/httplib/httplib.h lib/httplib/httplib.cc)
@@ -27,6 +36,7 @@ add_library(link_destination INTERFACE src/link_destination.hpp)
 
 # Our other libraries
 add_library(url_id_descriptor STATIC src/url_id_descriptor.hpp src/url_id_descriptor.cpp)
+target_link_libraries(url_id_descriptor PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 target_link_libraries(url_id_descriptor PRIVATE random_device)
 
 add_library(url_shorterner_container STATIC src/url_shorterner_container.hpp src/url_shorterner_container.cpp)
@@ -34,5 +44,6 @@ target_link_libraries(url_shorterner_container PRIVATE url_id_descriptor link_de
 
 # Our executables
 add_executable(url_shorterner src/main.cpp)
-target_link_libraries(url_shorterner fmt::fmt httplib)
-target_link_libraries(url_shorterner url_shorterner_container)
+target_link_libraries(url_shorterner PRIVATE httplib)
+target_link_libraries(url_shorterner PRIVATE spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
+target_link_libraries(url_shorterner PRIVATE url_shorterner_container)
