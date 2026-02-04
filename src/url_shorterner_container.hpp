@@ -16,16 +16,15 @@ class url_shorterner_container {
     using dest_url_t = link_destination::dest_url_t;
     using time_point = link_destination::time_point;
     using link_container_t = std::unordered_map<url_id_t, link_destination>;
+    using iterator = link_container_t::iterator;
+    using const_iterator = link_container_t::const_iterator;
 
     url_id_descriptor descriptor;
 
     /**
-     * To represent failures.
-     *
-     * @todo this is confusing as it is also used for dest_url, and an empty
-     * string isn't the best for a NULL response either
+     * To represent failures of the operations below.
      */
-    static constexpr url_id_t NULL_URL_ID = "";
+    iterator end();
 
     /**
      * Attempts to bind an URL to a shorterned URL_ID for easy sharing.
@@ -35,7 +34,7 @@ class url_shorterner_container {
      *
      * @todo remove the link copy if possible
      */
-    url_id_t insert(link_destination link);
+    iterator insert(link_destination&& link);
 
     /**
      * Find the destination URL that the URL_ID points to.
@@ -43,9 +42,7 @@ class url_shorterner_container {
      * @return The destination URL, or @c NULL_URL_ID if the URL_ID currently
      * isn't pointed to any URLs.
      */
-    dest_url_t at(const url_id_t& id) const;
-
-    url_shorterner_container() = default;
+    iterator at(const url_id_t& id);
 
     /**
      * Constructs the container from a file. The file must has these properties:
@@ -79,6 +76,17 @@ class url_shorterner_container {
      * @param filename File from which the container is formed.
      */
     url_shorterner_container(const std::string& filename);
+
+    url_shorterner_container() = default;
+
+    /**
+     * @todo Clear the container of expired links. Candidate policies are:
+     * - run as a worker thread
+     * - run when @c insert() dice roll fails more than X times
+     *      (do/should we expand the key space then?)
+     * - etc.
+     */
+    void flush();
 
    private:
     random_device rng;

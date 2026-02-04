@@ -5,21 +5,26 @@ constexpr int DB_LINE_STATES_COUNT = 3;
 constexpr std::string ZULU_ISO8601_FORMAT = "%FT%TZ";
 enum DB_LINE_STATES { URL_ID = 0, DEST_URL = 1, EXPIRE_AT = 2 };
 
-// Throw at most MAX_RETRY random URL_IDs, see what sticks
-// @todo locks
-auto url_shorterner_container::insert(link_destination link) -> url_id_t {
-    for (int iter = 0; iter < MAX_RETRY; iter++) {
-        url_id_t candidate = this->descriptor.generate_url_id(this->rng);
-        if (this->container.try_emplace(candidate, link).second) {
-            return candidate;
-        }
-    }
-    return NULL_URL_ID;
+auto url_shorterner_container::end() -> iterator {
+    return this->container.end();
 }
 
-auto url_shorterner_container::at(const url_id_t& id) const -> dest_url_t {
-    auto it = this->container.find(id);
-    return it == this->container.end() ? NULL_URL_ID : it->second.dest_url;
+// Throw at most MAX_RETRY random URL_IDs, see what sticks
+// @todo locks
+auto url_shorterner_container::insert(link_destination&& link) -> iterator {
+    for (int iter = 0; iter < MAX_RETRY; iter++) {
+        url_id_t candidate = this->descriptor.generate_url_id(this->rng);
+        if (auto result = this->container.try_emplace(std::move(candidate),
+                                                      std::move(link));
+            result.second) {
+            return result.first;
+        }
+    }
+    return this->end();
+}
+
+auto url_shorterner_container::at(const url_id_t& id) -> iterator {
+    return this->container.find(id);
 };
 
 // doesn't need to be particularly fast
