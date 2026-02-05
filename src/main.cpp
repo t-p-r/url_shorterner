@@ -33,6 +33,8 @@ int main() {
                 res.status = 503;
                 res.set_content("Unable to generate shorterned URL_ID.",
                                 "text/plain");
+                SPDLOG_INFO("503 GET /bind (dest_url = {})", dest_url);
+                return;
             }
 
             auto res_str = fmt::format(
