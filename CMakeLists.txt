@@ -7,6 +7,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY bin/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY bin/lib)
 set(CMAKE_CXX_STANDARD 20)
 
+# For clangd
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Set compiler flags
 if(MSVC)
     add_compile_options(/Zi)
