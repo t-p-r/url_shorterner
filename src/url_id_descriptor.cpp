@@ -35,7 +35,7 @@ url_id_descriptor::url_id_descriptor() {
         url_id_to_char[current_url_id] = c;
         char_to_url_id[c] = current_url_id++;
     }
-    
+
     SPDLOG_INFO("initialized character tables for {} characters",
                 current_url_id);
 }
