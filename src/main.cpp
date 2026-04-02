@@ -93,6 +93,7 @@ int main() {
     });
 
     SPDLOG_INFO("server now listening to http://localhost:{}", PORT);
+    SPDLOG_INFO("Happy April Fools!");
     // @todo add docker define
     server.listen("0.0.0.0", PORT);
 }
