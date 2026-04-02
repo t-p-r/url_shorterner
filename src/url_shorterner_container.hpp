@@ -80,7 +80,7 @@ class url_shorterner_container {
      * @todo Clear the container of expired links. Candidate policies are:
      * - run as a worker thread
      * - run when @c insert() dice roll fails more than X times
-     *      (do/should we expand the key space then?)
+     *      (should we expand the key space then?)
      * - etc.
      */
     void flush();
