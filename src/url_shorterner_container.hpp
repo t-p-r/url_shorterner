@@ -27,6 +27,8 @@ class url_shorterner_container {
      * @return A valid URL_ID for use with the server (e.g. a1b2), or @c
      * NULL_URL_ID if the attempt fails.
      *
+     * @note Will invalidate `link`.
+     *
      * @todo remove the link copy if possible
      */
     iterator insert(link_destination&& link);
