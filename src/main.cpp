@@ -66,7 +66,7 @@ int main() {
             res.set_content(res_str, "text/plain");
             SPDLOG_INFO("400 GET /r/{}", url_id);
         } else {
-            auto link = container.at(url_id);
+            auto link = container.find(url_id);
 
             if (link == container.end()) {
                 res.status = 404;
@@ -93,7 +93,6 @@ int main() {
     });
 
     SPDLOG_INFO("server now listening to http://localhost:{}", PORT);
-    SPDLOG_INFO("Happy April Fools!");
     // @todo add docker define
     server.listen("0.0.0.0", PORT);
 }

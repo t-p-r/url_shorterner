@@ -25,7 +25,7 @@ class url_shorterner_container {
      * Attempts to bind an URL to a shorterned URL_ID for easy sharing.
      * @param dest_url The URL that we want to share (e.g. google.com).
      * @return A valid URL_ID for use with the server (e.g. a1b2), or @c
-     * NULL_URL_ID if the attempt fails.
+     * end() if the attempt fails.
      *
      * @note Will invalidate `link`.
      *
@@ -36,10 +36,10 @@ class url_shorterner_container {
     /**
      * Find the destination URL that the URL_ID points to.
      * @param id What you think it is.
-     * @return The destination URL, or @c NULL_URL_ID if the URL_ID currently
+     * @return The destination URL, or @c end() if the URL_ID currently
      * isn't pointed to any URLs.
      */
-    iterator at(const url_id_t& id);
+    iterator find(const url_id_t& id);
 
     /**
      * Constructs the container from a file. The file must has these properties:

@@ -18,9 +18,9 @@ auto url_shorterner_container::end() -> iterator {
 // @todo locks
 auto url_shorterner_container::insert(link_destination&& link) -> iterator {
     for (int iter = 0; iter < MAX_RETRY; iter++) {
-        url_id_t candidate = this->descriptor.generate_url_id(this->rng);
-        if (auto result = this->container.try_emplace(std::move(candidate),
-                                                      std::move(link));
+        url_id_t candidate_id = this->descriptor.generate_url_id(this->rng);
+        if (auto result =
+                this->container.try_emplace(candidate_id, std::move(link));
             result.second) {
             return result.first;
         }
@@ -28,7 +28,7 @@ auto url_shorterner_container::insert(link_destination&& link) -> iterator {
     return this->end();
 }
 
-auto url_shorterner_container::at(const url_id_t& id) -> iterator {
+auto url_shorterner_container::find(const url_id_t& id) -> iterator {
     return this->container.find(id);
 };
 
